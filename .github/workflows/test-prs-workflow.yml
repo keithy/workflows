@@ -58,10 +58,22 @@ jobs:
             echo "=== Merging PR #$pr_num ==="
 
             # Get PR details
-            pr_json=$(gh pr view $pr_num --repo ${{ inputs.upstream_repo }} --json number,title,headRefName,headRepository --jq '.')
+            pr_json=$(gh pr view $pr_num --repo ${{ inputs.upstream_repo }} --json number,title,headRefName,headRepository,isDraft --jq '.')
 
-            pr_branch=$(echo "$pr_json" | jq -r '.headRefName')
-            pr_repo=$(echo "$pr_json" | jq -r '.headRepository.fullName')
+            pr_branch=$(echo "$pr_json" | jq -r '.headRefName // empty')
+            pr_repo=$(echo "$pr_json" | jq -r '.headRepository.fullName // .headRepository.owner.login // empty')
+
+            if [ -z "$pr_branch" ] || [ "$pr_branch" = "null" ]; then
+              echo "✗ Could not get branch for PR #$pr_num"
+              echo "JSON: $pr_json"
+              exit 1
+            fi
+
+            if [ -z "$pr_repo" ] || [ "$pr_repo" = "null" ]; then
+              echo "✗ Could not get repo for PR #$pr_num"
+              echo "JSON: $pr_json"
+              exit 1
+            fi
 
             echo "PR #$pr_num: $pr_repo:$pr_branch"
 
