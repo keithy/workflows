@@ -1,0 +1,57 @@
+name: Trigger Merge PRs Workflow
+description: Triggers merge-prs-workflow.yml with specified PRs and branch
+
+inputs:
+  pr_numbers:
+    description: 'Comma-separated PR numbers'
+    required: true
+  upstream_branch:
+    description: 'Branch to merge onto'
+    required: true
+  branch_name:
+    description: 'Output branch name'
+    required: true
+  upstream_repo:
+    description: 'Upstream repo'
+    default: 'nextlevelbuilder/goclaw'
+  output_repo:
+    description: 'Output repo'
+    default: 'keithy/goclaw'
+
+outputs:
+  run_url:
+    description: 'URL of the triggered workflow run'
+  branch_name:
+    description: 'Branch name that was used'
+  pr_numbers:
+    description: 'PR numbers that were used'
+
+runs:
+  using: composite
+  steps:
+    - id: trigger
+      run: |
+        echo "branch_name=${{ inputs.branch_name }}" >> $GITHUB_OUTPUT
+        echo "pr_numbers=${{ inputs.pr_numbers }}" >> $GITHUB_OUTPUT
+
+        gh workflow run merge-prs-workflow.yml \
+          --field pr_numbers='${{ inputs.pr_numbers }}' \
+          --field upstream_repo='${{ inputs.upstream_repo }}' \
+          --field upstream_branch='${{ inputs.upstream_branch }}' \
+          --field output_repo='${{ inputs.output_repo }}' \
+          --field branch_name='${{ inputs.branch_name }}'
+
+        sleep 3
+        RUN_ID=$(gh run list --workflow=merge-prs-workflow.yml --limit=1 --json databaseId --jq '.[0].databaseId')
+        RUN_URL=$(gh run view "$RUN_ID" --json url --jq '.url')
+        echo "run_url=$RUN_URL" >> $GITHUB_OUTPUT
+        echo "run_id=$RUN_ID"
+
+        echo "## ${{ inputs.upstream_branch }}: ${{ inputs.branch_name }}" >> $GITHUB_STEP_SUMMARY
+        echo "Triggered: $RUN_URL" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+
+        gh run watch "$RUN_ID" --exit-status
+      shell: bash
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
