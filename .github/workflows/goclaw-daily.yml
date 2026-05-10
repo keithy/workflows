@@ -15,8 +15,10 @@ jobs:
         upstream_branch: [main, dev]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Trigger combine-prs for ${{ matrix.upstream_branch }}
+        run: |
+          gh workflow run test-prs-workflow.yml \
         run: |
           gh workflow run test-prs-workflow.yml \
             --field pr_numbers='485,1016,1135,1138' \
