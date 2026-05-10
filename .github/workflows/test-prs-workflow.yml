@@ -96,14 +96,16 @@ jobs:
         run: |
           cd upstream
           
-          # Backup existing branch if it exists
+          # Backup existing remote branch if it exists (fetch it first)
           if git ls-remote --heads "https://x-access-token:$GH_TOKEN@github.com/${{ inputs.output_repo }}.git" "${{ inputs.branch_name }}" | grep -q .; then
             echo "Backing up existing branch: ${{ inputs.branch_name }}"
-            git push "https://x-access-token:$GH_TOKEN@github.com/${{ inputs.output_repo }}.git" "${{ inputs.branch_name }}:backup/${{ inputs.branch_name }}-$(date +%Y%m%d-%H%M%S)" || true
+            git push "https://x-access-token:$GH_TOKEN@github.com/${{ inputs.output_repo }}.git" \
+              "refs/heads/${{ inputs.branch_name }}:refs/backup/${{ inputs.branch_name }}-$(date +%Y%m%d-%H%M%S)" || true
           fi
           
-          # Push the merged branch
-          git push "https://x-access-token:$GH_TOKEN@github.com/${{ inputs.output_repo }}.git" "prs-merge/${{ github.run_id }}:${{ inputs.branch_name }}"
+          # Force push the merged branch (overwrite existing)
+          git push --force "https://x-access-token:$GH_TOKEN@github.com/${{ inputs.output_repo }}.git" \
+            "prs-merge/${{ github.run_id }}:${{ inputs.branch_name }}"
           echo "branch_url=https://github.com/${{ inputs.output_repo }}/tree/${{ inputs.branch_name }}" >> $GITHUB_OUTPUT
 
       - name: Summary
