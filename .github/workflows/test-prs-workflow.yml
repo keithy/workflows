@@ -80,8 +80,8 @@ jobs:
             # Fetch the PR branch
             git fetch "https://x-access-token:$GH_TOKEN@github.com/$pr_repo.git" "refs/heads/$pr_branch"
 
-            # Merge it
-            if git merge --no-edit FETCH_HEAD; then
+            # Merge it (allow unrelated histories for cross-fork PRs)
+            if git merge --no-edit --allow-unrelated-histories FETCH_HEAD; then
               echo "✓ Merged PR #$pr_num"
             else
               echo "✗ Failed to merge PR #$pr_num"
