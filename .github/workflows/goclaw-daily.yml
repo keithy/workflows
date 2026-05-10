@@ -28,7 +28,7 @@ jobs:
           
           # Wait for the run to appear and get its ID
           sleep 3
-          RUN_ID=$(gh run list --workflow=test-prs-workflow.yml --limit=1 --json id --jq '.[0].id')
+          RUN_ID=$(gh run list --workflow=test-prs-workflow.yml --limit=1 --json databaseId --jq '.[0].databaseId')
           echo "run_id=$RUN_ID"
           gh run watch "$RUN_ID" --exit-status
         env:
