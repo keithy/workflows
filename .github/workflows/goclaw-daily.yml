@@ -19,8 +19,6 @@ jobs:
       - name: Trigger combine-prs for ${{ matrix.upstream_branch }}
         run: |
           gh workflow run test-prs-workflow.yml \
-        run: |
-          gh workflow run test-prs-workflow.yml \
             --field pr_numbers='485,1016,1135,1138' \
             --field upstream_repo='nextlevelbuilder/goclaw' \
             --field upstream_branch='${{ matrix.upstream_branch }}' \
