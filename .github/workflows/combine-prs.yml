@@ -12,6 +12,11 @@ on:
         required: false
         type: string
         default: nextlevelbuilder/goclaw
+      upstream_branch:
+        description: 'Branch to merge onto (default: main)'
+        required: false
+        type: string
+        default: main
       output_repo:
         description: 'Fork repo to push merged branch (default: keithy/goclaw)'
         required: false
@@ -30,7 +35,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: ${{ inputs.upstream_repo }}
-          ref: main
+          ref: ${{ inputs.upstream_branch }}
           path: upstream
           fetch-depth: 1
           token: ${{ secrets.GITHUB_TOKEN }}

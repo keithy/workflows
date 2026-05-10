@@ -14,7 +14,8 @@ jobs:
           gh workflow run combine-prs.yml \
             --field pr_numbers='485,1016,1135,1138' \
             --field upstream_repo='nextlevelbuilder/goclaw' \
+            --field upstream_branch='main' \
             --field output_repo='keithy/goclaw' \
-            --field branch_name='combined/weekly-test'
+            --field branch_name='main-working'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
