@@ -30,7 +30,6 @@ jobs:
 
   merge:
     name: Merge ${{ matrix.upstream_branch }}
-    needs: sync
     strategy:
       matrix:
         upstream_branch: [main, dev]
