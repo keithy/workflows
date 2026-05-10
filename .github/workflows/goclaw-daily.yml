@@ -44,4 +44,5 @@ jobs:
           upstream_branch: ${{ matrix.upstream_branch }}
           output_repo: keithy/goclaw
           branch_name: ${{ matrix.upstream_branch }}+essential-prs
-        secrets: inherit
+        secrets:
+          PAT: ${{ secrets.PAT }}
