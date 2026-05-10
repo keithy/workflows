@@ -109,6 +109,8 @@ jobs:
           echo "branch_url=https://github.com/${{ inputs.output_repo }}/tree/${{ inputs.branch_name }}" >> $GITHUB_OUTPUT
 
       - name: Summary
+        env:
+          GH_TOKEN: ${{ secrets.PAT }}
         run: |
           echo "## Combined Build Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
