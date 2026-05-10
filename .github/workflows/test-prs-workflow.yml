@@ -61,7 +61,7 @@ jobs:
             pr_json=$(gh pr view $pr_num --repo ${{ inputs.upstream_repo }} --json number,title,headRefName,headRepository,isDraft --jq '.')
 
             pr_branch=$(echo "$pr_json" | jq -r '.headRefName // empty')
-            pr_repo=$(echo "$pr_json" | jq -r '.headRepository.fullName // .headRepository.owner.login // empty')
+            pr_repo=$(echo "$pr_json" | jq -r '.headRepository.nameWithOwner // .headRepository.owner.login // empty')
 
             if [ -z "$pr_branch" ] || [ "$pr_branch" = "null" ]; then
               echo "✗ Could not get branch for PR #$pr_num"
