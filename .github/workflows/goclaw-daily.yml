@@ -7,7 +7,7 @@ on:
     - cron: '0 6 * * 1-5'
 
 jobs:
-  trigger-combine-prs:
+  sync-and-merge:
     permissions:
       actions: write
     strategy:
@@ -16,7 +16,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - name: Trigger combine-prs for ${{ matrix.upstream_branch }}
+      - name: Sync fork
+        id: sync
+        run: |
+          gh workflow run sync-fork.yml \
+            --field output_repo='keithy/goclaw' \
+            --field upstream_repo='nextlevelbuilder/goclaw' \
+            --field branch='${{ matrix.upstream_branch }}'
+          
+          sleep 3
+          RUN_ID=$(gh run list --workflow=sync-fork.yml --limit=1 --json databaseId --jq '.[0].databaseId')
+          gh run watch "$RUN_ID" --exit-status
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Trigger merge-prs for ${{ matrix.upstream_branch }}
         id: trigger
         run: |
           gh workflow run merge-prs-workflow.yml \
@@ -34,7 +47,7 @@ jobs:
           echo "run_url=$RUN_URL" >> $GITHUB_OUTPUT
 
           # Write to summary immediately
-          echo "## ${{ matrix.upstream_branch }}: test-prs-workflow" >> $GITHUB_STEP_SUMMARY
+          echo "## ${{ matrix.upstream_branch }}: sync-fork" >> $GITHUB_STEP_SUMMARY
           echo "Triggered: $RUN_URL" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
 
