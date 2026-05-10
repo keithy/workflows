@@ -37,7 +37,7 @@ jobs:
           repository: ${{ inputs.upstream_repo }}
           ref: ${{ inputs.upstream_branch }}
           path: upstream
-          fetch-depth: 1
+          fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Create temp branch
