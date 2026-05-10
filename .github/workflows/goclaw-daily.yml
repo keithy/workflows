@@ -8,7 +8,7 @@ on:
 
 jobs:
   sync:
-    name: Sync ${{ matrix.upstream_branch }}
+    name: Sync upstream/${{ matrix.upstream_branch }}
     strategy:
       matrix:
         upstream_branch: [main, dev]
@@ -28,8 +28,8 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.PAT }}
 
-  merge:
-    name: Merge ${{ matrix.upstream_branch }}
+  merge-essential:
+    name: Merge essential into ${{ matrix.upstream_branch }}
     strategy:
       matrix:
         upstream_branch: [main, dev]
@@ -40,4 +40,18 @@ jobs:
       upstream_branch: ${{ matrix.upstream_branch }}
       output_repo: keithy/goclaw
       branch_name: ${{ matrix.upstream_branch }}+essential-prs
+    secrets: inherit
+
+  merge-testing:
+    name: Merge testing into ${{ matrix.upstream_branch }}
+    strategy:
+      matrix:
+        upstream_branch: [main, dev]
+    uses: ./.github/workflows/merge-prs-workflow.yml
+    with:
+      pr_numbers: '485,1016,1135,1138'
+      upstream_repo: nextlevelbuilder/goclaw
+      upstream_branch: ${{ matrix.upstream_branch }}
+      output_repo: keithy/goclaw
+      branch_name: ${{ matrix.upstream_branch }}+testing-prs
     secrets: inherit
