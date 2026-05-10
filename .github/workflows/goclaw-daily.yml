@@ -7,15 +7,18 @@ on:
 
 jobs:
   trigger-combine-prs:
+    strategy:
+      matrix:
+        upstream_branch: [main, dev]
     runs-on: ubuntu-latest
     steps:
-      - name: Trigger combine-prs workflow
+      - name: Trigger combine-prs for ${{ matrix.upstream_branch }}
         run: |
           gh workflow run combine-prs.yml \
             --field pr_numbers='485,1016,1135,1138' \
             --field upstream_repo='nextlevelbuilder/goclaw' \
-            --field upstream_branch='main' \
+            --field upstream_branch='${{ matrix.upstream_branch }}' \
             --field output_repo='keithy/goclaw' \
-            --field branch_name='main-working'
+            --field branch_name='${{ matrix.upstream_branch }}-working'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
