@@ -1,0 +1,20 @@
+name: Scheduled Combined Build
+
+on:
+  schedule:
+    # Weekdays at 6 AM UTC
+    - cron: '0 6 * * 1-5'
+
+jobs:
+  trigger-combine-prs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger combine-prs workflow
+        run: |
+          gh workflow run combine-prs.yml \
+            --field pr_numbers='485,1016,1135,1138' \
+            --field upstream_repo='nextlevelbuilder/goclaw' \
+            --field output_repo='keithy/goclaw' \
+            --field branch_name='combined/weekly-test'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
