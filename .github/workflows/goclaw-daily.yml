@@ -32,12 +32,18 @@ jobs:
           RUN_URL=$(gh run view "$RUN_ID" --json url --jq '.url')
           echo "run_id=$RUN_ID"
           echo "run_url=$RUN_URL" >> $GITHUB_OUTPUT
+          
+          # Write to summary immediately
+          echo "## ${{ matrix.upstream_branch }}: test-prs-workflow" >> $GITHUB_STEP_SUMMARY
+          echo "Triggered: $RUN_URL" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
           gh run watch "$RUN_ID" --exit-status
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Summary
+      - name: Summary (on failure)
+        if: failure()
         run: |
-          echo "## ${{ matrix.upstream_branch }}: test-prs-workflow" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "URL: ${{ steps.trigger.outputs.run_url }}" >> $GITHUB_STEP_SUMMARY
+          echo "## ${{ matrix.upstream_branch }}: FAILED" >> $GITHUB_STEP_SUMMARY
+          echo "See logs: ${{ steps.trigger.outputs.run_url }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
