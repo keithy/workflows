@@ -1,6 +1,7 @@
 name: Scheduled Combined Build
 
 on:
+  workflow_dispatch:
   schedule:
     # Weekdays at 6 AM UTC
     - cron: '0 6 * * 1-5'
