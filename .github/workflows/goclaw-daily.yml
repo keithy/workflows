@@ -31,6 +31,11 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.PAT }}
 
+      - name: Trigger summary
+        run: |
+          echo "## ${{ matrix.upstream_branch }}: ${{ matrix.upstream_branch }}+essential-prs" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
       - name: Merge PRs for ${{ matrix.upstream_branch }}
         uses: ./.github/workflows/merge-prs-workflow.yml
         with:
