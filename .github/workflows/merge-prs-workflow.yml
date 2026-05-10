@@ -1,4 +1,4 @@
-name: Test PRs Workflow
+name: Merge PRs Workflow
 
 on:
   workflow_dispatch:
