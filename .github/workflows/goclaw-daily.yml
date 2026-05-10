@@ -37,17 +37,3 @@ jobs:
           upstream_branch: ${{ matrix.upstream_branch }}
           output_repo: keithy/goclaw
           branch_name: ${{ matrix.upstream_branch }}+essential-prs
-      - name: Summary (on failure)
-        if: failure()
-        run: |
-          echo "## ${{ matrix.upstream_branch }}: FAILED" >> $GITHUB_STEP_SUMMARY
-          echo "Triggered: ${{ steps.trigger.outputs.run_url }}" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-      - name: Summary (on success)
-        if: success()
-        run: |
-          echo "## ${{ matrix.upstream_branch }}: merge-prs-workflow" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Output:** [https://github.com/keithy/goclaw](https://github.com/keithy/goclaw)" >> $GITHUB_STEP_SUMMARY
-          echo "**Branch:** [${{ matrix.upstream_branch }}-working](https://github.com/keithy/goclaw/tree/${{ matrix.upstream_branch }}-working)" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY

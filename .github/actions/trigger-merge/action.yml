@@ -33,6 +33,9 @@ runs:
       run: |
         echo "branch_name=${{ inputs.branch_name }}" >> $GITHUB_OUTPUT
         echo "pr_numbers=${{ inputs.pr_numbers }}" >> $GITHUB_OUTPUT
+        echo "## ${{ inputs.upstream_branch }}: ${{ inputs.branch_name }}" >> $GITHUB_STEP_SUMMARY
+        echo "Triggered: ..." >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
 
         gh workflow run merge-prs-workflow.yml \
           --field pr_numbers='${{ inputs.pr_numbers }}' \
@@ -47,11 +50,22 @@ runs:
         echo "run_url=$RUN_URL" >> $GITHUB_OUTPUT
         echo "run_id=$RUN_ID"
 
-        echo "## ${{ inputs.upstream_branch }}: ${{ inputs.branch_name }}" >> $GITHUB_STEP_SUMMARY
-        echo "Triggered: $RUN_URL" >> $GITHUB_STEP_SUMMARY
-        echo "" >> $GITHUB_STEP_SUMMARY
-
         gh run watch "$RUN_ID" --exit-status
       shell: bash
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - id: failure-summary
+      if: failure()
+      run: |
+        echo "## ${{ inputs.upstream_branch }}: FAILED" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+      shell: bash
+
+    - id: success-summary
+      if: success()
+      run: |
+        echo "**Output:** [https://github.com/${{ inputs.output_repo }}](https://github.com/${{ inputs.output_repo }})" >> $GITHUB_STEP_SUMMARY
+        echo "**Branch:** [${{ inputs.branch_name }}](https://github.com/${{ inputs.output_repo }}/tree/${{ inputs.branch_name }})" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+      shell: bash
