@@ -1,4 +1,4 @@
-name: Multi-PR Combined Build
+name: Test PRs Workflow
 
 on:
   workflow_dispatch:
