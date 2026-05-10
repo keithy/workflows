@@ -45,7 +45,6 @@ jobs:
 
   merge-main:
     name: Merge main
-    needs: sync-main
     uses: ./.github/workflows/merge-prs-workflow.yml
     with:
       pr_numbers: '485,1016,1135,1138'
@@ -57,7 +56,6 @@ jobs:
 
   merge-dev:
     name: Merge dev
-    needs: sync-dev
     uses: ./.github/workflows/merge-prs-workflow.yml
     with:
       pr_numbers: '485,1016,1135,1138'
