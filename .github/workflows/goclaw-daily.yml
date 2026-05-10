@@ -8,6 +8,8 @@ on:
 
 jobs:
   trigger-combine-prs:
+    permissions:
+      actions: write
     strategy:
       matrix:
         upstream_branch: [main, dev]
