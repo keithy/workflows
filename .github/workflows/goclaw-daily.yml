@@ -19,15 +19,14 @@ jobs:
       - name: Trigger combine-prs for ${{ matrix.upstream_branch }}
         id: trigger
         run: |
-          RUN_URL=$(gh workflow run test-prs-workflow.yml \
+          gh workflow run test-prs-workflow.yml \
             --field pr_numbers='485,1016,1135,1138' \
             --field upstream_repo='nextlevelbuilder/goclaw' \
             --field upstream_branch='${{ matrix.upstream_branch }}' \
             --field output_repo='keithy/goclaw' \
             --field branch_name='${{ matrix.upstream_branch }}-working' \
-            --json url --jq '.url')
-          echo "run_url=$RUN_URL" >> $GITHUB_OUTPUT
-          echo "Triggered: $RUN_URL"
+            --wait
+          echo "run_url=$(gh run view --json url --jq '.url')" >> $GITHUB_OUTPUT
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Summary
