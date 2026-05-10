@@ -140,12 +140,15 @@ jobs:
         run: |
           echo "## Combined Build Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "| PR |" >> $GITHUB_STEP_SUMMARY
-          echo "|----|" >> $GITHUB_STEP_SUMMARY
+          echo "| # | Title | Author |" >> $GITHUB_STEP_SUMMARY
+          echo "|----|----|----|" >> $GITHUB_STEP_SUMMARY
           for pr in $(echo "${{ inputs.pr_numbers }}" | tr ',' ' '); do
             pr_num=$(echo $pr | tr -d '[:space:]')
-            pr_title=$(gh pr view $pr_num --repo ${{ inputs.upstream_repo }} --json title -q '.title')
-            echo "| #$pr_num | $pr_title |" >> $GITHUB_STEP_SUMMARY
+            pr_data=$(gh pr view $pr_num --repo ${{ inputs.upstream_repo }} --json number,title,author --jq '{number: .number, title: .title, author: .author.login}')
+            pr_number=$(echo "$pr_data" | jq -r '.number')
+            pr_title=$(echo "$pr_data" | jq -r '.title')
+            pr_author=$(echo "$pr_data" | jq -r '.author')
+            echo "| #$pr_number | $pr_title | @$pr_author |" >> $GITHUB_STEP_SUMMARY
           done
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Output:** [https://github.com/${{ inputs.output_repo }}](https://github.com/${{ inputs.output_repo }})" >> $GITHUB_STEP_SUMMARY

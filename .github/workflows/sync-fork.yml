@@ -23,34 +23,21 @@ jobs:
   sync:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout output repo
-        uses: actions/checkout@v6
-        with:
-          repository: ${{ inputs.output_repo }}
-          ref: ${{ inputs.branch }}
-          fetch-depth: 0
-          token: ${{ secrets.PAT }}
-
-      - name: Add upstream remote
-        run: |
-          git remote add upstream "https://x-access-token:$PAT@github.com/${{ inputs.upstream_repo }}.git"
-          git fetch upstream
-        env:
-          PAT: ${{ secrets.PAT }}
-
       - name: Sync branch
         run: |
-          git checkout ${{ inputs.branch }}
-          git reset --hard upstream/${{ inputs.branch }}
-          git push --force "https://x-access-token:$PAT@github.com/${{ inputs.output_repo }}.git" "${{ inputs.branch }}"
+          git init
+          git remote add origin "https://x-access-token:$PAT@github.com/${{ inputs.output_repo }}.git"
+          git remote add upstream "https://x-access-token:$PAT@github.com/${{ inputs.upstream_repo }}.git"
+          git fetch upstream refs/heads/${{ inputs.branch }} --depth=1
+          git push --force origin FETCH_HEAD:refs/heads/${{ inputs.branch }}
         env:
           PAT: ${{ secrets.PAT }}
 
       - name: Summary
         run: |
+          UPSTREAM_SHA=$(gh api repos/${{ inputs.upstream_repo }}/branches/${{ inputs.branch }} --jq '.commit.sha')
           echo "## Sync Complete" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Synced:** ${{ inputs.upstream_repo }}/${{ inputs.branch }} → ${{ inputs.output_repo }}/${{ inputs.branch }}" >> $GITHUB_STEP_SUMMARY
-          echo "**Commit:** \`$(git rev-parse --short HEAD)\`" >> $GITHUB_STEP_SUMMARY
-          echo "**Message:** $(git log -1 --pretty=%s)" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit:** \`$(echo $UPSTREAM_SHA | cut -c1-7)\`" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
