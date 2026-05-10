@@ -1,0 +1,92 @@
+name: Multi-PR Combined Build
+
+on:
+  workflow_dispatch:
+    inputs:
+      pr_numbers:
+        description: 'Comma-separated PR numbers (e.g., "1135,1140,1142")'
+        required: true
+        type: string
+      upstream_repo:
+        description: 'Upstream repo (default: nextlevelbuilder/goclaw)'
+        required: false
+        type: string
+        default: nextlevelbuilder/goclaw
+
+jobs:
+  build-merged:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout upstream main
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ inputs.upstream_repo }}
+          ref: main
+          path: upstream
+          fetch-depth: 1
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create temp branch
+        run: |
+          cd upstream
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git checkout -b prs-merge/${{ github.run_id }}
+
+      - name: Fetch and merge PRs
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cd upstream
+
+          for pr in $(echo "${{ inputs.pr_numbers }}" | tr ',' ' '); do
+            pr_num=$(echo $pr | tr -d '[:space:]')
+            echo "=== Merging PR #$pr_num ==="
+
+            # Get PR details
+            pr_json=$(gh pr view $pr_num --repo ${{ inputs.upstream_repo }} --json number,title,headRefName,headRepository --jq '.')
+
+            pr_branch=$(echo "$pr_json" | jq -r '.headRefName')
+            pr_repo=$(echo "$pr_json" | jq -r '.headRepository.fullName')
+
+            echo "PR #$pr_num: $pr_repo:$pr_branch"
+
+            # Fetch the PR branch
+            git fetch "https://x-access-token:$GH_TOKEN@github.com/$pr_repo.git" "refs/heads/$pr_branch"
+
+            # Merge it
+            if git merge --no-edit FETCH_HEAD; then
+              echo "✓ Merged PR #$pr_num"
+            else
+              echo "✗ Failed to merge PR #$pr_num"
+              git merge --abort || true
+              exit 1
+            fi
+          done
+
+      - name: Build Go
+        run: |
+          cd upstream
+          go build ./...
+
+      - name: Run tests
+        run: |
+          cd upstream
+          go test ./... 2>&1 | head -50
+
+      - name: Report to PRs
+        if: always()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          BUILD_STATUS=${{ job.status == 'success' && '✓ SUCCESS' || '✗ FAILED' }}
+          WORKFLOW_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+
+          for pr in $(echo "${{ inputs.pr_numbers }}" | tr ',' ' '); do
+            pr_num=$(echo $pr | tr -d '[:space:]')
+            echo "Posting to PR #$pr_num..."
+            gh pr comment $pr_num --repo ${{ inputs.upstream_repo }} \
+              "**Combined Build $BUILD_STATUS**" \
+              "Workflow: $WORKFLOW_URL" \
+              "Run: ${{ github.run_attempt }}/${{ github.run_number }}"
+          done
