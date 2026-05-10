@@ -31,11 +31,11 @@ jobs:
           git fetch upstream refs/heads/${{ inputs.branch }} --depth=1
           git push --force origin FETCH_HEAD:refs/heads/${{ inputs.branch }}
         env:
-          PAT: ${{ secrets.PAT }}
+          PAT: ${{ secrets.GH_TOKEN }}
 
       - name: Summary
         env:
-          GH_TOKEN: ${{ secrets.PAT }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
           UPSTREAM_SHA=$(gh api repos/${{ inputs.upstream_repo }}/branches/${{ inputs.branch }} --jq '.commit.sha')
           echo "## Sync Complete" >> $GITHUB_STEP_SUMMARY

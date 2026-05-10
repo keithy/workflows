@@ -64,7 +64,7 @@ jobs:
           ref: ${{ inputs.upstream_branch }}
           path: upstream
           fetch-depth: 0
-          token: ${{ secrets.PAT }}
+          token: ${{ secrets.GH_TOKEN }}
 
       - name: Create temp branch
         run: |
@@ -75,7 +75,7 @@ jobs:
 
       - name: Fetch and merge PRs
         env:
-          GH_TOKEN: ${{ secrets.PAT }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
           cd upstream
 
@@ -118,7 +118,7 @@ jobs:
 
       - name: Push merged branch
         env:
-          GH_TOKEN: ${{ secrets.PAT }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
           cd upstream
           
@@ -136,7 +136,7 @@ jobs:
 
       - name: Summary
         env:
-          GH_TOKEN: ${{ secrets.PAT }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
           echo "## Combined Build Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY

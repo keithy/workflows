@@ -26,7 +26,7 @@ jobs:
           RUN_ID=$(gh run list --workflow=sync-fork.yml --limit=1 --json databaseId --jq '.[0].databaseId')
           gh run watch "$RUN_ID" --exit-status || true
         env:
-          GH_TOKEN: ${{ secrets.PAT }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
   merge-essential:
     name: Merge essential into ${{ matrix.upstream_branch }}
