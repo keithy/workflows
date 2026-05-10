@@ -122,5 +122,6 @@ jobs:
             echo "| #$pr_num | $pr_title |" >> $GITHUB_STEP_SUMMARY
           done
           echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Output:** [https://github.com/${{ inputs.output_repo }}](https://github.com/${{ inputs.output_repo }})" >> $GITHUB_STEP_SUMMARY
           echo "**Branch:** [${{ inputs.branch_name }}](https://github.com/${{ inputs.output_repo }}/tree/${{ inputs.branch_name }})" >> $GITHUB_STEP_SUMMARY
           echo "**Workflow:** ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" >> $GITHUB_STEP_SUMMARY
