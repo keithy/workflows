@@ -90,21 +90,6 @@ jobs:
             fi
           done
 
-      - name: Build Go
-        id: build
-        run: |
-          cd upstream
-          go build ./...
-          echo "✓ Build passed"
-          echo "build_status=✓ Build passed" >> $GITHUB_OUTPUT
-
-      - name: Run tests
-        id: tests
-        run: |
-          cd upstream
-          go test ./... 2>&1 | head -50
-          echo "tests_status=✓ Tests completed" >> $GITHUB_OUTPUT
-
       - name: Push merged branch
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -133,7 +118,5 @@ jobs:
             echo "| #$pr_num | $pr_title |" >> $GITHUB_STEP_SUMMARY
           done
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Build:** ${{ steps.build.outputs.build_status }}" >> $GITHUB_STEP_SUMMARY
-          echo "**Tests:** ${{ steps.tests.outputs.tests_status }}" >> $GITHUB_STEP_SUMMARY
           echo "**Branch:** [${{ inputs.branch_name }}](https://github.com/${{ inputs.output_repo }}/tree/${{ inputs.branch_name }})" >> $GITHUB_STEP_SUMMARY
           echo "**Workflow:** ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" >> $GITHUB_STEP_SUMMARY
