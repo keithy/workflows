@@ -34,6 +34,8 @@ jobs:
           PAT: ${{ secrets.PAT }}
 
       - name: Summary
+        env:
+          GH_TOKEN: ${{ secrets.PAT }}
         run: |
           UPSTREAM_SHA=$(gh api repos/${{ inputs.upstream_repo }}/branches/${{ inputs.branch }} --jq '.commit.sha')
           echo "## Sync Complete" >> $GITHUB_STEP_SUMMARY
