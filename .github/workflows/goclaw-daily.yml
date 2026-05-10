@@ -47,7 +47,8 @@ jobs:
           echo "run_url=$RUN_URL" >> $GITHUB_OUTPUT
 
           # Write to summary immediately
-          echo "## ${{ matrix.upstream_branch }}: sync-fork" >> $GITHUB_STEP_SUMMARY
+          BRANCH_NAME="${{ matrix.upstream_branch }}+essential-prs"
+          echo "## ${{ matrix.upstream_branch }}: $BRANCH_NAME" >> $GITHUB_STEP_SUMMARY
           echo "Triggered: $RUN_URL" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
 
