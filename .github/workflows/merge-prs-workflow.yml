@@ -23,9 +23,6 @@ on:
         description: 'Branch name to create/update'
         required: true
         type: string
-    secrets:
-      PAT:
-        required: true
 
   workflow_dispatch:
     inputs:
