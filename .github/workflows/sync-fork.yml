@@ -1,0 +1,56 @@
+name: Sync Fork
+
+on:
+  workflow_dispatch:
+    inputs:
+      output_repo:
+        description: 'Fork repo to update (default: keithy/goclaw)'
+        required: false
+        type: string
+        default: keithy/goclaw
+      upstream_repo:
+        description: 'Upstream repo (default: nextlevelbuilder/goclaw)'
+        required: false
+        type: string
+        default: nextlevelbuilder/goclaw
+      branch:
+        description: 'Branch to sync (default: main)'
+        required: false
+        type: string
+        default: main
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout output repo
+        uses: actions/checkout@v6
+        with:
+          repository: ${{ inputs.output_repo }}
+          ref: ${{ inputs.branch }}
+          fetch-depth: 0
+          token: ${{ secrets.PAT }}
+
+      - name: Add upstream remote
+        run: |
+          git remote add upstream "https://x-access-token:$PAT@github.com/${{ inputs.upstream_repo }}.git"
+          git fetch upstream
+        env:
+          PAT: ${{ secrets.PAT }}
+
+      - name: Sync branch
+        run: |
+          git checkout ${{ inputs.branch }}
+          git reset --hard upstream/${{ inputs.branch }}
+          git push --force "https://x-access-token:$PAT@github.com/${{ inputs.output_repo }}.git" "${{ inputs.branch }}"
+        env:
+          PAT: ${{ secrets.PAT }}
+
+      - name: Summary
+        run: |
+          echo "## Sync Complete" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Synced:** ${{ inputs.upstream_repo }}/${{ inputs.branch }} → ${{ inputs.output_repo }}/${{ inputs.branch }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit:** \`$(git rev-parse --short HEAD)\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Message:** $(git log -1 --pretty=%s)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY

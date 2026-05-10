@@ -24,20 +24,20 @@ jobs:
             --field upstream_repo='nextlevelbuilder/goclaw' \
             --field upstream_branch='${{ matrix.upstream_branch }}' \
             --field output_repo='keithy/goclaw' \
-            --field branch_name='${{ matrix.upstream_branch }}-working'
-          
+            --field branch_name='${{ matrix.upstream_branch }}+essential-prs'
+
           # Wait for the run to appear and get its ID
           sleep 3
           RUN_ID=$(gh run list --workflow=merge-prs-workflow.yml --limit=1 --json databaseId --jq '.[0].databaseId')
           RUN_URL=$(gh run view "$RUN_ID" --json url --jq '.url')
           echo "run_id=$RUN_ID"
           echo "run_url=$RUN_URL" >> $GITHUB_OUTPUT
-          
+
           # Write to summary immediately
           echo "## ${{ matrix.upstream_branch }}: test-prs-workflow" >> $GITHUB_STEP_SUMMARY
           echo "Triggered: $RUN_URL" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          
+
           gh run watch "$RUN_ID" --exit-status
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
