@@ -7,8 +7,11 @@ on:
     - cron: '0 6 * * 1-5'
 
 jobs:
-  sync-main:
-    name: Sync main
+  sync:
+    name: Sync ${{ matrix.upstream_branch }}
+    strategy:
+      matrix:
+        upstream_branch: [main, dev]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -17,7 +20,7 @@ jobs:
           gh workflow run sync-fork.yml \
             --field output_repo='keithy/goclaw' \
             --field upstream_repo='nextlevelbuilder/goclaw' \
-            --field branch='main'
+            --field branch='${{ matrix.upstream_branch }}'
 
           sleep 3
           RUN_ID=$(gh run list --workflow=sync-fork.yml --limit=1 --json databaseId --jq '.[0].databaseId')
@@ -25,42 +28,17 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.PAT }}
 
-  sync-dev:
-    name: Sync dev
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v6
-      - name: Sync fork
-        run: |
-          gh workflow run sync-fork.yml \
-            --field output_repo='keithy/goclaw' \
-            --field upstream_repo='nextlevelbuilder/goclaw' \
-            --field branch='dev'
-
-          sleep 3
-          RUN_ID=$(gh run list --workflow=sync-fork.yml --limit=1 --json databaseId --jq '.[0].databaseId')
-          gh run watch "$RUN_ID" --exit-status || true
-        env:
-          GH_TOKEN: ${{ secrets.PAT }}
-
-  merge-main:
-    name: Merge main
+  merge:
+    name: Merge ${{ matrix.upstream_branch }}
+    needs: sync
+    strategy:
+      matrix:
+        upstream_branch: [main, dev]
     uses: ./.github/workflows/merge-prs-workflow.yml
     with:
       pr_numbers: '485,1016,1135,1138'
       upstream_repo: nextlevelbuilder/goclaw
-      upstream_branch: main
+      upstream_branch: ${{ matrix.upstream_branch }}
       output_repo: keithy/goclaw
-      branch_name: main+essential-prs
-    secrets: inherit
-
-  merge-dev:
-    name: Merge dev
-    uses: ./.github/workflows/merge-prs-workflow.yml
-    with:
-      pr_numbers: '485,1016,1135,1138'
-      upstream_repo: nextlevelbuilder/goclaw
-      upstream_branch: dev
-      output_repo: keithy/goclaw
-      branch_name: dev+essential-prs
+      branch_name: ${{ matrix.upstream_branch }}+essential-prs
     secrets: inherit
