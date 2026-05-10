@@ -31,13 +31,15 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Trigger merge-prs for ${{ matrix.upstream_branch }}
         id: trigger
+        env:
+          BRANCH_NAME: ${{ matrix.upstream_branch }}+essential-prs
         run: |
           gh workflow run merge-prs-workflow.yml \
             --field pr_numbers='485,1016,1135,1138' \
             --field upstream_repo='nextlevelbuilder/goclaw' \
             --field upstream_branch='${{ matrix.upstream_branch }}' \
             --field output_repo='keithy/goclaw' \
-            --field branch_name='${{ matrix.upstream_branch }}+essential-prs'
+            --field branch_name="$BRANCH_NAME"
 
           # Wait for the run to appear and get its ID
           sleep 3
@@ -47,7 +49,6 @@ jobs:
           echo "run_url=$RUN_URL" >> $GITHUB_OUTPUT
 
           # Write to summary immediately
-          BRANCH_NAME="${{ matrix.upstream_branch }}+essential-prs"
           echo "## ${{ matrix.upstream_branch }}: $BRANCH_NAME" >> $GITHUB_STEP_SUMMARY
           echo "Triggered: $RUN_URL" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
