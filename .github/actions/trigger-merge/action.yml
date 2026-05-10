@@ -17,6 +17,9 @@ inputs:
   output_repo:
     description: 'Output repo'
     default: 'keithy/goclaw'
+  github_token:
+    description: 'GitHub token for authentication'
+    required: true
 
 outputs:
   run_url:
@@ -53,7 +56,7 @@ runs:
         gh run watch "$RUN_ID" --exit-status
       shell: bash
       env:
-        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GH_TOKEN: ${{ inputs.github_token }}
 
     - id: failure-summary
       if: failure()
