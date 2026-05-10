@@ -1,6 +1,29 @@
 name: Merge PRs Workflow
 
 on:
+  workflow_call:
+    inputs:
+      pr_numbers:
+        description: 'Comma-separated PR numbers'
+        required: true
+        type: string
+      upstream_repo:
+        description: 'Upstream repo'
+        required: true
+        type: string
+      upstream_branch:
+        description: 'Branch to merge onto'
+        required: true
+        type: string
+      output_repo:
+        description: 'Fork repo to push merged branch'
+        required: true
+        type: string
+      branch_name:
+        description: 'Branch name to create/update'
+        required: true
+        type: string
+
   workflow_dispatch:
     inputs:
       pr_numbers:

@@ -23,19 +23,20 @@ jobs:
             --field output_repo='keithy/goclaw' \
             --field upstream_repo='nextlevelbuilder/goclaw' \
             --field branch='${{ matrix.upstream_branch }}'
-          
+
           sleep 3
           RUN_ID=$(gh run list --workflow=sync-fork.yml --limit=1 --json databaseId --jq '.[0].databaseId')
           echo "sync_run_id=$RUN_ID"
           gh run watch "$RUN_ID" --exit-status || true
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Trigger merge-prs for ${{ matrix.upstream_branch }}
-        uses: ./.github/actions/trigger-merge
+          GH_TOKEN: ${{ secrets.PAT }}
+
+      - name: Merge PRs for ${{ matrix.upstream_branch }}
+        uses: ./.github/workflows/merge-prs-workflow.yml
         with:
           pr_numbers: '485,1016,1135,1138'
           upstream_repo: nextlevelbuilder/goclaw
           upstream_branch: ${{ matrix.upstream_branch }}
           output_repo: keithy/goclaw
           branch_name: ${{ matrix.upstream_branch }}+essential-prs
-          github_token: ${{ secrets.PAT }}
+        secrets: inherit
