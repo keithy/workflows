@@ -32,10 +32,11 @@ jobs:
       - name: Trigger merge-prs for ${{ matrix.upstream_branch }}
         id: trigger
         env:
+          PR_NUMBERS: '485,1016,1135,1138'
           BRANCH_NAME: ${{ matrix.upstream_branch }}+essential-prs
         run: |
           gh workflow run merge-prs-workflow.yml \
-            --field pr_numbers='485,1016,1135,1138' \
+            --field pr_numbers="$PR_NUMBERS" \
             --field upstream_repo='nextlevelbuilder/goclaw' \
             --field upstream_branch='${{ matrix.upstream_branch }}' \
             --field output_repo='keithy/goclaw' \
