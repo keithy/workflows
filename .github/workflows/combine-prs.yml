@@ -65,28 +65,32 @@ jobs:
           done
 
       - name: Build Go
+        id: build
         run: |
           cd upstream
           go build ./...
+          echo "✓ Build passed"
+          echo "build_status=✓ Build passed" >> $GITHUB_OUTPUT
 
       - name: Run tests
+        id: tests
         run: |
           cd upstream
           go test ./... 2>&1 | head -50
+          echo "tests_status=✓ Tests completed" >> $GITHUB_OUTPUT
 
-      - name: Report to PRs
-        if: always()
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Summary
         run: |
-          BUILD_STATUS=${{ job.status == 'success' && '✓ SUCCESS' || '✗ FAILED' }}
-          WORKFLOW_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-
+          echo "## Combined Build Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| PR |" >> $GITHUB_STEP_SUMMARY
+          echo "|----|" >> $GITHUB_STEP_SUMMARY
           for pr in $(echo "${{ inputs.pr_numbers }}" | tr ',' ' '); do
             pr_num=$(echo $pr | tr -d '[:space:]')
-            echo "Posting to PR #$pr_num..."
-            gh pr comment $pr_num --repo ${{ inputs.upstream_repo }} \
-              "**Combined Build $BUILD_STATUS**" \
-              "Workflow: $WORKFLOW_URL" \
-              "Run: ${{ github.run_attempt }}/${{ github.run_number }}"
+            pr_title=$(gh pr view $pr_num --repo ${{ inputs.upstream_repo }} --json title -q '.title')
+            echo "| #$pr_num | $pr_title |" >> $GITHUB_STEP_SUMMARY
           done
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Build:** ${{ steps.build.outputs.build_status }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Tests:** ${{ steps.tests.outputs.tests_status }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Workflow:** ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" >> $GITHUB_STEP_SUMMARY
