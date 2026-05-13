@@ -8,7 +8,7 @@ jobs:
     name: Merge compose+podman into ${{ matrix.upstream_branch }}
     strategy:
       matrix:
-        upstream_branch: [main, dev]
+        upstream_branch: [main]
     uses: ./.github/workflows/merge-prs-workflow.yml
     with:
       pr_numbers: '485,1135'
