@@ -31,6 +31,7 @@ jobs:
           git remote add upstream "https://x-access-token:$PAT@github.com/${{ inputs.upstream_repo }}.git"
           git fetch upstream refs/heads/${{ inputs.branch }} --tags --depth=1
           git checkout -b ${{ inputs.branch }}
+          git reset --hard FETCH_HEAD
           git clean -fd
           git push --force origin ${{ inputs.branch }}
           git push --force origin 'refs/tags/v*' --tags
