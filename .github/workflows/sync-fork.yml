@@ -29,8 +29,9 @@ jobs:
           git remote add origin "https://x-access-token:$PAT@github.com/${{ inputs.output_repo }}.git"
           git remote add upstream "https://x-access-token:$PAT@github.com/${{ inputs.upstream_repo }}.git"
           git fetch upstream refs/heads/${{ inputs.branch }} --tags --depth=1
+          git checkout -b ${{ inputs.branch }}
           git clean -fd
-          git push --force origin FETCH_HEAD:refs/heads/${{ inputs.branch }}
+          git push --force origin ${{ inputs.branch }}
           git push --force origin 'refs/tags/v*' --tags
         env:
           PAT: ${{ secrets.GH_TOKEN }}
