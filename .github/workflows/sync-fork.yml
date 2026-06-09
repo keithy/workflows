@@ -27,7 +27,7 @@ jobs:
         run: |
           git clone "https://x-access-token:$PAT@github.com/${{ inputs.output_repo }}.git" .
           git remote add upstream "https://x-access-token:$PAT@github.com/${{ inputs.upstream_repo }}.git"
-          git fetch upstream refs/heads/${{ inputs.branch }} refs/tags/v* --depth=1
+          git fetch upstream refs/heads/${{ inputs.branch }} --tags --depth=1
           git push --force origin upstream/${{ inputs.branch }}:${{ inputs.branch }}
           git push --force origin 'refs/tags/v*' --tags
         env:
