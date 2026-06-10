@@ -13,22 +13,26 @@ on:
         required: false
         type: string
         default: nextlevelbuilder/goclaw
-      branch:
-        description: 'Branch to sync (default: main)'
+      branches:
+        description: 'Comma-separated branches to sync (default: main,dev)'
         required: false
         type: string
-        default: main
+        default: main,dev
 
 jobs:
   sync:
     runs-on: ubuntu-latest
     steps:
-      - name: Sync branch
+      - name: Sync branches
         run: |
           git clone "https://x-access-token:$PAT@github.com/${{ inputs.output_repo }}.git" .
           git remote add src_remote "https://x-access-token:$PAT@github.com/${{ inputs.upstream_repo }}.git"
-          git fetch src_remote refs/heads/${{ inputs.branch }} --depth=1
-          git push origin FETCH_HEAD:refs/heads/${{ inputs.branch }} --force
+          IFS=',' read -ra ADDR <<< "${{ inputs.branches }}"
+          for branch in "${ADDR[@]}"; do
+            branch=$(echo $branch | xargs)
+            git fetch src_remote refs/heads/${branch} --depth=1
+            git push origin FETCH_HEAD:refs/heads/${branch} --force
+          done
           git tag -d $(git tag -l)
           git fetch src_remote --tags --quiet
           git push origin --tags --force
@@ -39,9 +43,13 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
-          UPSTREAM_SHA=$(gh api repos/${{ inputs.upstream_repo }}/branches/${{ inputs.branch }} --jq '.commit.sha')
           echo "## Sync Complete" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Synced:** ${{ inputs.upstream_repo }}/${{ inputs.branch }} → ${{ inputs.output_repo }}/${{ inputs.branch }}" >> $GITHUB_STEP_SUMMARY
-          echo "**Commit:** \`$(echo $UPSTREAM_SHA | cut -c1-7)\`" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
+          IFS=',' read -ra ADDR <<< "${{ inputs.branches }}"
+          for branch in "${ADDR[@]}"; do
+            branch=$(echo $branch | xargs)
+            UPSTREAM_SHA=$(gh api repos/${{ inputs.upstream_repo }}/branches/${branch} --jq '.commit.sha')
+            echo "**Synced:** ${{ inputs.upstream_repo }}/${branch} → ${{ inputs.output_repo }}/${branch}" >> $GITHUB_STEP_SUMMARY
+            echo "**Commit:** \`$(echo $UPSTREAM_SHA | cut -c1-7)\`" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+          done
