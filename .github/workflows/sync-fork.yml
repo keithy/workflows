@@ -28,7 +28,7 @@ jobs:
           git clone "https://x-access-token:$PAT@github.com/${{ inputs.output_repo }}.git" .
           git remote add src_remote "https://x-access-token:$PAT@github.com/${{ inputs.upstream_repo }}.git"
           git fetch src_remote --quiet
-          git clean -fd
+          rm -rf ${{ inputs.branch }}
           git push origin "refs/remotes/src_remote/${{ inputs.branch }}:refs/heads/${{ inputs.branch }}" --force
           git tag -d $(git tag -l)
           git fetch src_remote --tags --quiet
