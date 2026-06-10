@@ -27,6 +27,13 @@ jobs:
         run: |
           git clone "https://x-access-token:$PAT@github.com/${{ inputs.output_repo }}.git" .
           git remote add src_remote "https://x-access-token:$PAT@github.com/${{ inputs.upstream_repo }}.git"
+          
+          # Delete any remote branches like dev/foo to prevent directory/file conflicts
+          CONFLICTING_BRANCHES=$(git ls-remote --heads origin "refs/heads/${{ inputs.branch }}/*" | awk '{print $2}')
+          for branch in $CONFLICTING_BRANCHES; do
+            git push origin --delete ${branch#refs/heads/}
+          done
+          
           git fetch src_remote refs/heads/${{ inputs.branch }} --depth=1
           git push origin FETCH_HEAD:refs/heads/${{ inputs.branch }} --force
           git tag -d $(git tag -l)
