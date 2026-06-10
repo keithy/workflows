@@ -26,10 +26,12 @@ jobs:
       - name: Sync branch
         run: |
           git clone "https://x-access-token:$PAT@github.com/${{ inputs.output_repo }}.git" .
-          git remote add upstream "https://x-access-token:$PAT@github.com/${{ inputs.upstream_repo }}.git"
-          git fetch upstream refs/heads/${{ inputs.branch }} --tags -f --depth=1
-          git push --force origin FETCH_HEAD:refs/heads/${{ inputs.branch }}
-          git push --force origin 'refs/tags/v*' --tags
+          git remote add src_remote "https://x-access-token:$PAT@github.com/${{ inputs.upstream_repo }}.git"
+          git fetch src_remote --quiet
+          git push origin "refs/remotes/src_remote/*:refs/heads/*" --force
+          git tag -d $(git tag -l)
+          git fetch src_remote --tags --quiet
+          git push origin --tags --force
         env:
           PAT: ${{ secrets.GH_TOKEN }}
 
