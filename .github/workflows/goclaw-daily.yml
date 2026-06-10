@@ -20,7 +20,7 @@ jobs:
           gh workflow run sync-fork.yml \
             --field output_repo='keithy/goclaw' \
             --field upstream_repo='nextlevelbuilder/goclaw' \
-            --field branch='${{ matrix.upstream_branch }}'
+            --field branches='${{ matrix.upstream_branch }}'
 
           sleep 3
           RUN_ID=$(gh run list --workflow=sync-fork.yml --limit=1 --json databaseId --jq '.[0].databaseId')
@@ -35,7 +35,7 @@ jobs:
         upstream_branch: [main, dev]
     uses: ./.github/workflows/merge-prs-workflow.yml
     with:
-      pr_numbers: '485,1016,1135,1138'
+      pr_numbers: '1135'
       upstream_repo: nextlevelbuilder/goclaw
       upstream_branch: ${{ matrix.upstream_branch }}
       output_repo: keithy/goclaw
@@ -49,7 +49,7 @@ jobs:
         upstream_branch: [main]
     uses: ./.github/workflows/merge-prs-workflow.yml
     with:
-      pr_numbers: '485,1135'
+      pr_numbers: '1135'
       upstream_repo: nextlevelbuilder/goclaw
       upstream_branch: ${{ matrix.upstream_branch }}
       output_repo: keithy/goclaw
