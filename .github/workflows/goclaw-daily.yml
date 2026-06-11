@@ -35,7 +35,7 @@ jobs:
         upstream_branch: [main, dev]
     uses: ./.github/workflows/merge-prs-workflow.yml
     with:
-      pr_numbers: '1135'
+      pr_numbers: '1135,1210'
       upstream_repo: nextlevelbuilder/goclaw
       upstream_branch: ${{ matrix.upstream_branch }}
       output_repo: keithy/goclaw
@@ -49,7 +49,7 @@ jobs:
         upstream_branch: [main]
     uses: ./.github/workflows/merge-prs-workflow.yml
     with:
-      pr_numbers: '1135'
+      pr_numbers: '1135,1210'
       upstream_repo: nextlevelbuilder/goclaw
       upstream_branch: ${{ matrix.upstream_branch }}
       output_repo: keithy/goclaw
